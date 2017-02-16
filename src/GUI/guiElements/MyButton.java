@@ -7,14 +7,12 @@ package GUI.guiElements;
 
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.awt.image.WritableRaster;
-import java.net.URL;
 import java.util.ArrayList;
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
@@ -25,37 +23,37 @@ import rangerdepot.RangerDepot;
  *
  * @author Florian
  */
-public class CloseButton extends JLabel implements MouseListener
+public class MyButton extends JLabel implements MouseListener
 {
     private boolean enabled = true;
     private boolean entered = false;
     
+    private final int scaleMode;
+    
     private Dimension size;
     
-    private Color color,hoveredColor,crossColor;
-    private BufferedImage closeImage_Buffered;
-    private Image closeImage;
+    private Color color,hoveredColor,iconColor;
+    private BufferedImage image_Buffered;
     private ArrayList<ActionListener> actionListeners;
     
-    public CloseButton(int width)
+    public MyButton(int width, String imagePath, int scaleMode)
     {
         super();
         addMouseListener(this);
         actionListeners = new ArrayList<ActionListener>();
         size = new Dimension(width,width);
+        this.scaleMode = scaleMode;
         
         color = new Color(238,238,238);
         hoveredColor = new Color(198,198,198);
-        crossColor = new Color(51,51,51);
+        iconColor = new Color(51,51,51);
         setOpaque(true);
         
         super.setSize(size);
         
         try
         {
-//            URL url = RangerDepot.class.getResource("../resources/pictures/closeButton.png");
-//            System.out.println("URL: "+url.getPath());
-            closeImage_Buffered = ImageIO.read(RangerDepot.class.getResource("../resources/pictures/closeButton.png"));
+            image_Buffered = ImageIO.read(RangerDepot.class.getResource("../resources/pictures/"+imagePath+".png"));
             setImage();
         }catch(Exception e){System.err.println("Fehler: Bild konnte nicht geladen werden!");e.printStackTrace();}
         
@@ -112,9 +110,9 @@ public class CloseButton extends JLabel implements MouseListener
     {
         setHoveredColor(new Color(r,g,b));
     }
-    public void setCrossColor(Color c)
+    public void setIconColor(Color c)
     {
-        crossColor = c;
+        iconColor = c;
         setImage();
     }
     
@@ -124,23 +122,22 @@ public class CloseButton extends JLabel implements MouseListener
     
     private void setImage()
     {
-        int width = closeImage_Buffered.getWidth();
-        int height = closeImage_Buffered.getHeight();
-        WritableRaster raster = closeImage_Buffered.getRaster();
+        int width = image_Buffered.getWidth();
+        int height = image_Buffered.getHeight();
+        WritableRaster raster = image_Buffered.getRaster();
         for(int x=0;x<width;x++)
         {
             for(int y=0;y<height;y++)
             {
                 int [] pixels = raster.getPixel(x, y, (int[])null);
-                pixels[0] = crossColor.getRed();
-                pixels[1] = crossColor.getGreen();
-                pixels[2] = crossColor.getBlue();
+                pixels[0] = iconColor.getRed();
+                pixels[1] = iconColor.getGreen();
+                pixels[2] = iconColor.getBlue();
                 raster.setPixel(x, y, pixels);
             }
         }
         
-        closeImage = closeImage_Buffered.getScaledInstance(size.width, size.height, Image.SCALE_SMOOTH);
-        setIcon(new ImageIcon(closeImage));
+        setIcon(new ImageIcon(image_Buffered.getScaledInstance(size.width, size.height, scaleMode)));
     }
     
     
@@ -152,7 +149,7 @@ public class CloseButton extends JLabel implements MouseListener
         if(enabled)
         {
             for(int i=0;i<actionListeners.size();i++)
-                actionListeners.get(i).actionPerformed(new ActionEvent(this,1001,"Close Button Clicked"));
+                actionListeners.get(i).actionPerformed(new ActionEvent(this,1001,"Button Clicked"));
             entered = false;
             setBackground(color);
         }

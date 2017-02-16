@@ -24,13 +24,13 @@ public class MyMenuItem extends JLabel implements MouseListener
     
     
     /*Standard MyMenu-Item Konstuktor*/
-    public MyMenuItem(MyMenu m,String title,Dimension d)
+    protected MyMenuItem(MyMenu m,String title,Dimension d)
     {
         super(title);
         menu = m;
         parentItem = null;
         setForeground(menu.getTextColor());
-        setFont(getFont().deriveFont(Font.BOLD,14));
+        setFont(m.getBigFont());
         setOpaque(true);setSize(d);
         addMouseListener(this);
         menu.panel.add(this);
@@ -38,13 +38,13 @@ public class MyMenuItem extends JLabel implements MouseListener
         subMenu = new ArrayList<MyMenuItem>();
     }
     /*Konstruktor for Submenu-Item*/
-    public MyMenuItem(MyMenu m,MyMenuItem parent,String title,Dimension d)
+    protected MyMenuItem(MyMenu m,MyMenuItem parent,String title,Dimension d)
     {
         super(title);
         menu = m;
         parentItem = parent;
         setForeground(menu.getTextColor());
-        setFont(getFont().deriveFont(Font.PLAIN,12));
+        setFont(m.getSmallFont());
         setOpaque(true);setSize(d);
         addMouseListener(this);
         menu.subPanel.add(this);
@@ -54,19 +54,19 @@ public class MyMenuItem extends JLabel implements MouseListener
     
     
     
-    public void addSubMenuItem(MyMenuItem item)
+    protected void addSubMenuItem(MyMenuItem item)
     {
         if(parentItem == null)
             subMenu.add(item);
     }
     
-    public void subItemClicked(MyMenuItem source)
+    protected void subItemClicked(MyMenuItem source)
     {
         menu.itemClicked(this, subMenu.indexOf(source));
     }
     
     
-    public void setButton(boolean b)
+    protected void setButton(boolean b)
     {
         if(parentItem != null)
         {
@@ -74,26 +74,26 @@ public class MyMenuItem extends JLabel implements MouseListener
             menu.updateItems();
         }
     }
-    public boolean isButton()
+    protected boolean isButton()
     {
         return isButton;
     }
     
     
     
-    public void setSelected(boolean s)
+    protected void setSelected(boolean s)
     {
         selected = s;
     }
-    public boolean isSelected()
+    protected boolean isSelected()
     {
         return selected;
     }
-    public boolean isMouseEntered()
+    protected boolean isMouseEntered()
     {
         return mouseEntered;
     }
-    public ArrayList<MyMenuItem> getSubMenu()
+    protected ArrayList<MyMenuItem> getSubMenu()
     {
         return subMenu;
     }

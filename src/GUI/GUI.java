@@ -6,10 +6,14 @@
 package GUI;
 
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Toolkit;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+import java.net.URL;
+import javax.swing.JLabel;
 import rangerdepot.RangerDepot;
+import rangerdepot.Users.User;
 
 /**
  *
@@ -17,7 +21,14 @@ import rangerdepot.RangerDepot;
  */
 public class GUI implements WindowListener
 {
-    private final RangerDepot depot;
+    public static final int MENU_WIDTH = 100;
+    public static final Font GUI_FONT = getFont("MYRIADAT");
+    public static final Font GUI_FONT_SEMI = getFont("MYRIADAS");
+    public static final Font GUI_FONT_MEDIUM = getFont("MYRIADAM");
+    public static final Font GUI_FONT_BOLD = getFont("MYRIADAB");
+    
+    
+    public final RangerDepot depot;
     
     private final LoginFrame login;
     private MainFrame mainFrame = null;
@@ -35,6 +46,17 @@ public class GUI implements WindowListener
         
         login = new LoginFrame(depot, this);
         login.setVisible(true);
+    }
+    private static Font getFont(String s)
+    {
+        try
+        {
+            URL url = RangerDepot.class.getResource("../resources/font/"+s+".ttf");
+            return Font.createFont(Font.TRUETYPE_FONT, url.openStream()).deriveFont((float)15);
+        }catch(Exception e)
+        {
+            return new JLabel().getFont();
+        }
     }
     public void exit()
     {
@@ -55,6 +77,12 @@ public class GUI implements WindowListener
     {
         if(error != null)
             error.showError(err);
+    }
+    
+    
+    public User getUser()
+    {
+        return depot.getUser();
     }
     
     

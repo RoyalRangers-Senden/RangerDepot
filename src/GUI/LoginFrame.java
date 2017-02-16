@@ -1,6 +1,6 @@
 package GUI;
 
-import GUI.guiElements.CloseButton;
+import GUI.guiElements.MyButton;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Image;
@@ -22,8 +22,7 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
-import static javax.swing.SwingConstants.HORIZONTAL;
-import static javax.swing.SwingConstants.VERTICAL;
+import javax.swing.WindowConstants;
 import rangerdepot.RangerDepot;
 import rangerdepot.Strings;
 
@@ -31,10 +30,15 @@ import rangerdepot.Strings;
 public class LoginFrame extends JFrame implements ActionListener,FocusListener,MouseListener,MouseMotionListener
 {
     private static final int BACKGROUND_ALPHA = 30;
-    private static final int BACKGROUND_SIZE = 500;
+    private static final int BACKGROUND_SIZE = 480;
     
     private final RangerDepot depot;
     private final GUI gui;
+    
+    private final Color borderColor = new Color(210,197,164);
+    private final Color borderHoveredColor = new Color(200,185,145);
+    private final Color backgroundColor = new Color(244,241,233);
+    private final Color loginColor = new Color(231,224,207);
     
     private final Dimension screenSize;
     private Dimension size;
@@ -43,7 +47,7 @@ public class LoginFrame extends JFrame implements ActionListener,FocusListener,M
     //title
     private final JPanel titlePanel;
     private final JLabel titleL;
-    private final CloseButton closeB;
+    private final MyButton closeB;
     
     private final JPanel data;
     private final JLabel ipL,userL,pwL,rangerLogo;
@@ -58,15 +62,16 @@ public class LoginFrame extends JFrame implements ActionListener,FocusListener,M
     private int lastX,lastY;
     
     
-    public LoginFrame(RangerDepot depot, GUI gui)// check Resources
+    public LoginFrame(RangerDepot depot, GUI g)// check Resources
     {
         super("Login");
         this.depot = depot;
-        this.gui = gui;
+        this.gui = g;
         setUndecorated(true);
+        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         
         addFocusListener(this);
-        size = new Dimension(250,330);
+        size = new Dimension(250,300);
         h = new JButton();
         h.setSize(0,0);h.setLocation(0,0);h.setVisible(true);
         setLayout(null);
@@ -88,68 +93,56 @@ public class LoginFrame extends JFrame implements ActionListener,FocusListener,M
         //<editor-fold> Title
         titlePanel = new JPanel();
         titlePanel.setSize(size.width, 50);titlePanel.setLocation(0,0);
-        titlePanel.setBackground(new Color(161,2,0));
+        titlePanel.setBackground(borderColor);
         titlePanel.setLayout(null);
         titlePanel.addMouseListener(this);
         titlePanel.addMouseMotionListener(this);
         
         titleL = new JLabel("Royal-Rangers Datenbank");
-        titleL.setSize(220,40);titleL.setLocation(0,5);
-        titleL.setFont(titleL.getFont().deriveFont((float)18));
+        titleL.setSize(200,40);titleL.setLocation(5,5);
+        titleL.setFont(GUI.GUI_FONT.deriveFont((float)18));
         titlePanel.add(titleL);
         titleL.addMouseListener(this);
         titleL.addMouseMotionListener(this);
         
-        closeB = new CloseButton(30);
+        closeB = new MyButton(25,"closeButton", Image.SCALE_SMOOTH);
         closeB.addActionListener(this);
-        closeB.setLocation(size.width-40,10);
-        closeB.setColor(161,2,0);closeB.setHoveredColor(128,1,0);
+        closeB.setLocation(size.width-37,12);
+        closeB.setColor(borderColor);closeB.setHoveredColor(borderHoveredColor);
         titlePanel.add(closeB);
         
         titlePanel.add(h);titlePanel.remove(h);
         //</editor-fold> Title
         
         //<editor-fold> Data
+        data = new JPanel();
+        data.setSize(size.width,size.height-90);data.setLocation(0,50);
+        data.setLayout(null);data.setOpaque(false);
+        data.setBackground(backgroundColor);
+        
         ipL = new JLabel("IP:");ipL.setSize(70,25);ipL.setLocation(0,5);ipL.setHorizontalAlignment(SwingConstants.RIGHT);
+        ipL.setFont(GUI.GUI_FONT);
         ipTF = new JTextField("localhost");
         ipTF.setSize(150,25);ipTF.setLocation(81,5);ipTF.addActionListener(this);
+        ipTF.setFont(GUI.GUI_FONT);
         
         userL = new JLabel("User:");userL.setSize(70,25);userL.setLocation(0,35);userL.setHorizontalAlignment(SwingConstants.RIGHT);
+        userL.setFont(GUI.GUI_FONT);
         userTF = new JTextField();
         userTF.setSize(150,25);userTF.setLocation(81,35);userTF.addActionListener(this);
+        userTF.setFont(GUI.GUI_FONT);
         
         pwL = new JLabel("Passwort:");pwL.setSize(70,25);pwL.setLocation(0,65);pwL.setHorizontalAlignment(SwingConstants.RIGHT);
+        pwL.setFont(GUI.GUI_FONT);
         pwTF = new JPasswordField();
         pwTF.setSize(150,25);pwTF.setLocation(81,65);pwTF.addActionListener(this);
-        
-        data = new JPanel();data.setSize(size.width,size.height-90);data.setLocation(0,51);data.setLayout(null);data.setOpaque(false);
-        data.add(ipL);data.add(ipTF);
-        data.add(userL);data.add(userTF);
-        data.add(pwL);data.add(pwTF);
-        data.add(h);data.remove(h);
-        //</editor-fold> Data
-        
-        //<editor-fold> Login
-        loginPanel = new JPanel();
-        loginPanel.setSize(size.width,40);loginPanel.setLocation(0,size.height-40);
-        loginPanel.setBackground(new Color(230,230,230));
-        loginPanel.setLayout(null);
-                
-        enterButton = new JButton("Login");
-        enterButton.setSize(100,30);enterButton.setLocation(120,5);enterButton.addActionListener(this);
-        
-        loginPanel.add(enterButton);
-        loginPanel.add(h);loginPanel.remove(h);
-        //</editor-fold> Login
-        
-        /****/
         
         //<editor-fold> Ranger Logo
         rangerLogo = new JLabel();
         rangerLogo.setSize(BACKGROUND_SIZE, BACKGROUND_SIZE);
 //        rangerLogo.setLocation(size.width-(BACKGROUND_SIZE/2), (-(BACKGROUND_SIZE/2))-(BACKGROUND_SIZE*59/1135));//rechts oben
-//        rangerLogo.setLocation(-(BACKGROUND_SIZE/2), (-(BACKGROUND_SIZE/2))-(BACKGROUND_SIZE*59/1135));//links oben
-        rangerLogo.setLocation(-(BACKGROUND_SIZE/2), (size.height-(BACKGROUND_SIZE/2))-(BACKGROUND_SIZE*59/1135));//links unten
+        rangerLogo.setLocation(-(BACKGROUND_SIZE/2), (-(BACKGROUND_SIZE/2))-(BACKGROUND_SIZE*59/1135));//links oben
+//        rangerLogo.setLocation(-(BACKGROUND_SIZE/2), (size.height-(BACKGROUND_SIZE/2))-(BACKGROUND_SIZE*59/1135));//links unten
         
         try
         {
@@ -171,11 +164,33 @@ public class LoginFrame extends JFrame implements ActionListener,FocusListener,M
         }catch(Exception e){System.err.println("Fehler: Bild konnte nicht geladen werden!");e.printStackTrace();}
         //</editor-fold> Ranger Logo
         
+        data.add(ipL);data.add(ipTF);
+        data.add(userL);data.add(userTF);
+        data.add(pwL);data.add(pwTF);
+        data.add(rangerLogo);
+        data.add(h);data.remove(h);
+        //</editor-fold> Data
+        
+        //<editor-fold> Login
+        loginPanel = new JPanel();
+        loginPanel.setSize(size.width,40);loginPanel.setLocation(0,size.height-40);
+        loginPanel.setBackground(loginColor);
+        loginPanel.setLayout(null);
+                
+        enterButton = new JButton("Login");
+        enterButton.setSize(100,30);enterButton.setLocation(140,5);enterButton.addActionListener(this);
+        enterButton.setFont(GUI.GUI_FONT);
+        
+        loginPanel.add(enterButton);
+        loginPanel.add(h);loginPanel.remove(h);
+        //</editor-fold> Login
+        
         //====================================================================//
         
         add(titlePanel);
         add(data);
         add(loginPanel);
+//        add(rangerLogo);
         add(h);remove(h);
     }
     
@@ -215,7 +230,7 @@ public class LoginFrame extends JFrame implements ActionListener,FocusListener,M
     //<editor-fold> Action Listener
     @Override public void actionPerformed(ActionEvent e)
     {
-        if(e.getSource() instanceof CloseButton)
+        if(e.getSource() instanceof MyButton)
         {
             System.exit(0);
         }
@@ -268,5 +283,5 @@ public class LoginFrame extends JFrame implements ActionListener,FocusListener,M
         lastY = e.getYOnScreen();
     }
     @Override public void mouseMoved(MouseEvent e){}
-    //<editor-fold> Mouse Motion Listener
+    //</editor-fold> Mouse Motion Listener
 }

@@ -9,6 +9,7 @@ import GUI.GUI;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import javax.swing.UIManager;
+import rangerdepot.Users.Content.Stamm;
 import rangerdepot.Users.Leiter;
 import rangerdepot.Users.Ranger;
 import rangerdepot.Users.User;
@@ -38,11 +39,10 @@ public class RangerDepot
     private User user = null;
     
     
-    private final DatabaseInterface di;
+    public final DatabaseInterface di;
     private final GUI gui;
     
     private boolean connected = false;
-    private int userType;
     
     
     public RangerDepot()
@@ -56,15 +56,15 @@ public class RangerDepot
         {
             try
             {
-                ResultSet result = di.read("SELECT * FROM users WHERE name = \'"+userName+"\';");
+                ResultSet result = di.read("SELECT * FROM users JOIN stamm on users.stammID=stamm.id WHERE users.name = \'"+userName+"\';");
                 result.first();
                 if(result.getRow() > 0)
                 {
                     if(result.getInt("isLeiter") == 0)
-                        user = new Ranger(result.getInt("id"), result.getString("name"));
+                        user = new Ranger(result.getInt("users.id"), result.getString("users.name"), new Stamm(result.getInt("stamm.id"),result.getString("stamm.name")));
                     else
-                        user = new Leiter(result.getInt("id"), result.getString("name"), result.getInt("isAdmin")!=0);
-                    System.out.println("User angelegt");
+                        user = new Leiter(result.getInt("users.id"), result.getString("users.name"), new Stamm(result.getInt("stamm.id"),result.getString("stamm.name")), result.getBoolean("users.isStammAdmin"),result.getBoolean("users.isAdmin"));
+                    System.out.println("User angelegt: "+user.getType());
                 }
                 else
                 {
@@ -86,6 +86,12 @@ public class RangerDepot
     {
         di.exit();
         System.exit(0);
+    }
+    
+    
+    public User getUser()
+    {
+        return user;
     }
     
     

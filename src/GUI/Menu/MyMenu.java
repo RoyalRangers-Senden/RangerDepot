@@ -2,6 +2,7 @@ package GUI.Menu;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeListener;
@@ -16,8 +17,10 @@ import javax.swing.Timer;
  */
 public class MyMenu extends JLayeredPane implements ActionListener
 {
-    private static Double OFFSET_ADD = (double)3;
+    private static final Double OFFSET_ADD = (double)3;
     
+    private Font font,smallFont;
+    private int fontSize,smallFontSize;
     
     private Dimension size;
     private boolean initialized = false;
@@ -46,6 +49,11 @@ public class MyMenu extends JLayeredPane implements ActionListener
         setOpaque(false);setLayout(null);
         
         actionListeners = new ArrayList<ActionListener>();
+        
+        fontSize = 14;
+        smallFontSize = 12;
+        font = null;//getFont().deriveFont(Font.BOLD, fontSize);
+        smallFont = null;//font.deriveFont(Font.PLAIN, smallFontSize);
         
         timer = new Timer(1000/60,this);
         timer.setRepeats(true);
@@ -222,6 +230,45 @@ public class MyMenu extends JLayeredPane implements ActionListener
         return textColor;
     }
     
+    
+    @Override public void setFont(Font f)
+    {
+        font = f.deriveFont((float)fontSize);
+//        font = f.deriveFont(Font.BOLD, fontSize);
+        smallFont = f.deriveFont((float)smallFontSize);
+        for(MyMenuItem i:menuItems)
+        {
+            i.setFont(font);
+            for(MyMenuItem k:i.getSubMenu())
+                k.setFont(smallFont);
+        }
+    }
+    public void setFontSize(int s)
+    {
+        fontSize = s;
+        font = font.deriveFont((float)fontSize);
+        for(MyMenuItem i:menuItems)
+            i.setFont(font);
+    }
+    public void setSmallFontSize(int s)
+    {
+        smallFontSize = s;
+        smallFont = smallFont.deriveFont((float)smallFontSize);
+        for(MyMenuItem i:menuItems)
+            for(MyMenuItem k:i.getSubMenu())
+                k.setFont(smallFont);
+    }
+    protected Font getBigFont()
+    {
+        return font;
+    }
+    protected Font getSmallFont()
+    {
+        return smallFont;
+    }
+    
+    
+    
     public void addActionListener(ActionListener a)
     {
         if(!actionListeners.contains(a))
@@ -237,6 +284,8 @@ public class MyMenu extends JLayeredPane implements ActionListener
     public void addMenuItem(String title)
     {
         MyMenuItem tempItem = new MyMenuItem(this,title,new Dimension(getWidth(),30));
+        tempItem.setFont(font);
+        
         for(int i=0;i<propertyListener.size();i++)
             if(propertyListenerProperties.get(i).equals(""))
                 tempItem.addPropertyChangeListener(propertyListener.get(i));
@@ -249,9 +298,11 @@ public class MyMenu extends JLayeredPane implements ActionListener
     }
     public void addSubMenuItem(int MenuIndex,String title)
     {
-        if(MenuIndex < menuItems.size())
+        if(MenuIndex < menuItems.size() && MenuIndex >= 0)
         {
             MyMenuItem tempItem = new MyMenuItem(this,menuItems.get(MenuIndex),title,new Dimension(getWidth()-20,30));
+            tempItem.setFont(font.deriveFont(Font.PLAIN,12));
+            
             for(int i=0;i<propertyListener.size();i++)
                 if(propertyListenerProperties.get(i).equals(""))
                     tempItem.addPropertyChangeListener(propertyListener.get(i));
@@ -321,7 +372,7 @@ public class MyMenu extends JLayeredPane implements ActionListener
             }
         }
     }
-    public void itemClicked(MyMenuItem source, int index)
+    protected void itemClicked(MyMenuItem source, int index)
     {
         selectedItem = menuItems.indexOf(source);
         selectedItemIndex = index;
@@ -372,7 +423,7 @@ public class MyMenu extends JLayeredPane implements ActionListener
         return tempS;
     }
     
-    public void updateItems()
+    protected void updateItems()
     {
         if(initialized)
         {
@@ -380,8 +431,10 @@ public class MyMenu extends JLayeredPane implements ActionListener
             for(int i=0;i<menuItems.size();i++)
             {
                 MyMenuItem tempItem = menuItems.get(i);
-                tempItem.setSelected((selectedItem==i && selectedItemIndex==-1));
-                tempItem.setBackground((selectedItem==i&&selectedItemIndex==-1)?selectedColor:((tempItem.isMouseEntered() && enabled)?hoveredColor:standardColor));
+//                tempItem.setSelected((selectedItem==i && selectedItemIndex==-1));
+//                tempItem.setBackground((selectedItem==i&&selectedItemIndex==-1)?selectedColor:((tempItem.isMouseEntered() && enabled)?hoveredColor:standardColor));
+                tempItem.setSelected(selectedItem==i);
+                tempItem.setBackground((selectedItem==i)?selectedColor:((tempItem.isMouseEntered() && enabled)?hoveredColor:standardColor));
                 
                 tempItem.setLocation(0,i*30 + tempInt);
                 tempItem.setSize(size.width,30);

@@ -54,6 +54,7 @@ public class ErrorDialog extends JDialog
         
         errorLabel = new JLabel("");
         errorLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        errorLabel.setFont(GUI.GUI_FONT);
         add(errorLabel);
     }
     

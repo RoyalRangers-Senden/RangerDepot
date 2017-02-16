@@ -5,15 +5,21 @@
  */
 package rangerdepot.Users;
 
+import rangerdepot.Users.Content.Stamm;
+
 /**
  *
  * @author Florian
  */
 public class Ranger extends User
 {
-    public Ranger(int id,String name)
+    public Ranger(int id,String name, Stamm stamm)
     {
         this.id = id;
+        this.userType = RANGER;
+        isAdmin = false;
+        isStammAdmin = false;
         this.name = name;
+        this.stamm = stamm;
     }
 }

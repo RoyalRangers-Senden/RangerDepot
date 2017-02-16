@@ -5,18 +5,21 @@
  */
 package rangerdepot.Users;
 
+import rangerdepot.Users.Content.Stamm;
+
 /**
  *
  * @author Florian
  */
 public class Leiter extends User
 {
-    private final boolean isAdmin;
-    
-    public Leiter(int id,String name, boolean isAdmin)
+    public Leiter(int id,String name, Stamm stamm, boolean isStammAdmin, boolean isAdmin)
     {
         this.id = id;
+        this.userType = isAdmin? ADMIN : LEITER;
         this.name = name;
+        this.stamm = stamm;
         this.isAdmin = isAdmin;
+        this.isStammAdmin = isStammAdmin;
     }
 }
