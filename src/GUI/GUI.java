@@ -45,7 +45,7 @@ public class GUI implements WindowListener
         screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         
         login = new LoginFrame(depot, this);
-        login.setVisible(true);
+        login.open();
     }
     private static Font getFont(String s)
     {

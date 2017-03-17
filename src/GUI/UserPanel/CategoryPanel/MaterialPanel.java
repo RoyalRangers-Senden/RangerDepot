@@ -9,9 +9,11 @@ import GUI.GUI;
 import GUI.MainFrame;
 import GUI.ScrollPane.MyScrollPane;
 import GUI.UserPanel.ContentPanel.StandortPanel;
+import GUI.guiElements.MyButton;
 import GUI.guiElements.MyComboBox;
 import GUI.guiElements.MyComboBox.MyComboEvent;
 import java.awt.Dimension;
+import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.ResultSet;
@@ -43,6 +45,7 @@ public class MaterialPanel extends JLayeredPane implements ActionListener
     private final JPanel header;
     private final JLabel stamm;
     private final MyComboBox<Stamm> stammCombo;
+    private final MyButton searchButton;
     
     //content
     private final MyScrollPane standortePanel;
@@ -55,6 +58,7 @@ public class MaterialPanel extends JLayeredPane implements ActionListener
         super();
         gui = g;
         user = gui.getUser();
+        setDoubleBuffered(true);
         setLayout(null);
         
         h = new JButton();h.setSize(1,1);h.setLocation(-1,-1);
@@ -63,6 +67,11 @@ public class MaterialPanel extends JLayeredPane implements ActionListener
         header.setLocation(0,0);
         header.setBackground(MainFrame.MENU_COLOR);
         header.setLayout(null);
+        searchButton = new MyButton(20,"searchButton",Image.SCALE_SMOOTH);
+        searchButton.setIconColor(MainFrame.BORDER_HOVERED_COLOR);
+        searchButton.setColor(MainFrame.MENU_COLOR);
+        searchButton.setHoveredColor(MainFrame.MENU_HOVERED_COLOR);
+        searchButton.addActionListener(this);
         stamm = new JLabel(user.getStamm().toString());
         stamm.setSize(300,26);stamm.setLocation(4,2);
         stamm.setFont(GUI.GUI_FONT);
@@ -83,6 +92,7 @@ public class MaterialPanel extends JLayeredPane implements ActionListener
             add(stammCombo,21);
         else
             header.add(stamm);
+        header.add(searchButton);
         header.add(h);header.remove(h);
         
         
@@ -93,6 +103,9 @@ public class MaterialPanel extends JLayeredPane implements ActionListener
         standortePanel.setScrollbarThickness(7);
         standortePanel.setScrollbarColor(MainFrame.BORDER_COLOR);
         
+        
+        
+        stammCombo.setSelectetItem(user.getStamm());
         add(header,20);
         add(standortePanel,1);
         add(h);remove(h);
@@ -116,7 +129,7 @@ public class MaterialPanel extends JLayeredPane implements ActionListener
         }catch(Exception e){}
     }
     
-    private void update(int stammID)
+    private void updateStandorte(int stammID)
     {
         for(StandortPanel p:standorte)
             standortePanel.remove(p);
@@ -131,15 +144,21 @@ public class MaterialPanel extends JLayeredPane implements ActionListener
 
             for(int i=0;i<length;i++)
             {
-                standorte.add(new StandortPanel(new Standort(
+                StandortPanel p = new StandortPanel(new Standort(
                         result.getInt("id"),
                         result.getString("name"),
                         result.getInt("stammID"),
                         result.getInt("zipcode"),
                         result.getString("town"),
-                        result.getString("town"),
+                        result.getString("street"),
                         result.getInt("houseNumber"),
-                        result.getString("houseNumberAddition"))));
+                        result.getString("houseNumberAddition")));
+                p.setFontSmall(GUI.GUI_FONT);
+                p.setFontBold(GUI.GUI_FONT_SEMI);
+                p.setBackground(MainFrame.BACKGROUND_HOVERED_COLOR);
+                p.setBorderColor(MainFrame.MENU_COLOR);
+                p.addActionListener(this);
+                standorte.add(p);
                 result.next();
             }
         }catch(SQLException e){e.printStackTrace();}
@@ -161,10 +180,6 @@ public class MaterialPanel extends JLayeredPane implements ActionListener
             StandortPanel p = standorte.get(i);
             p.setSize(STANDORTE_WIDTH,STANDORTE_HEIGHT);
             p.setLocation(STANDORTE_WIDTH*(i%columns) + gap*(i%columns+1), STANDORTE_HEIGHT*(i/columns) + STANDORTE_GAP*(i/columns+1));
-            p.setFontSmall(GUI.GUI_FONT);
-            p.setFontBold(GUI.GUI_FONT_SEMI);
-            p.setBackground(MainFrame.BACKGROUND_HOVERED_COLOR);
-            p.setBorderColor(MainFrame.BORDER_COLOR);
             standortePanel.add(p);
         }
     }
@@ -172,11 +187,11 @@ public class MaterialPanel extends JLayeredPane implements ActionListener
     
     public void reset()
     {
-        if(user.isAdmin())
-            stammCombo.setSelectetItem(null);
         standortePanel.removeAll();
         standorte.clear();
         updateStaemme();
+        if(user.isAdmin())
+            stammCombo.setSelectetItem(user.getStamm());
     }
     
     
@@ -184,8 +199,15 @@ public class MaterialPanel extends JLayeredPane implements ActionListener
     {
         super.setSize(x, y);
         header.setSize(x, 30);
+        searchButton.setLocation(header.getWidth()-25,5);
         standortePanel.setSize(x, y-30);
         updateStandorteSize();
+        
+        if(x < 335)
+            stammCombo.setSize(300-(335-x),26);
+        else
+            stammCombo.setSize(300,26);
+        stammCombo.repaint();
     }
     @Override public void setSize(Dimension d)
     {
@@ -201,7 +223,12 @@ public class MaterialPanel extends JLayeredPane implements ActionListener
         if(e.getSource() instanceof MyComboBox)
         {
             MyComboEvent c = (MyComboEvent)e;
-            update(((Stamm)c.getObject()).getID());
+            updateStandorte(((Stamm)c.getObject()).getID());
+        }
+        else if(e.getSource() instanceof StandortPanel)
+        {
+            Standort st = ((StandortPanel)e.getSource()).getStandort();
+            System.out.println(st.toString());
         }
     }
     //</editor-fold> Action Listener

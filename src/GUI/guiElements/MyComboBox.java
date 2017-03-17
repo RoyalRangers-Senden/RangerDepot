@@ -30,6 +30,7 @@ import javax.swing.Timer;
 public class MyComboBox<T> extends JPanel implements ActionListener,MouseListener,FocusListener,KeyListener
 {
     private static final int BORDER_WIDTH = 2;
+    private static final int LABEL_BORDER = 5;
     private static final int EXTENSION_SPEED = 10;
     private boolean initialized = false;
     private boolean filtering = false;
@@ -91,7 +92,7 @@ public class MyComboBox<T> extends JPanel implements ActionListener,MouseListene
         borderM = new JLabel();borderM.setBackground(borderLightC);borderM.setOpaque(true);
         
         selectedL = new ComboLabel<T>(null);
-        selectedL.setLocation(BORDER_WIDTH,BORDER_WIDTH);
+        selectedL.setLocation(BORDER_WIDTH+LABEL_BORDER, BORDER_WIDTH);
         selectedL.addMouseListener(this);
         selectedL.setFocusable(true);
         selectedL.addKeyListener(this);
@@ -126,10 +127,10 @@ public class MyComboBox<T> extends JPanel implements ActionListener,MouseListene
         size.width = x;
         size.height = y;
         super.setSize(x,y+extension);
-        selectedL.setSize(x-BORDER_WIDTH*2, size.height-BORDER_WIDTH*2);
+        selectedL.setSize(x-BORDER_WIDTH*2-LABEL_BORDER, size.height-BORDER_WIDTH*2);
         scroll.setLocation(BORDER_WIDTH, y);
         for(JLabel l:labels)
-            l.setSize(x-BORDER_WIDTH*2,itemSize);
+            l.setSize(x-BORDER_WIDTH*2-LABEL_BORDER,itemSize);
         update();
     }
     
@@ -146,21 +147,24 @@ public class MyComboBox<T> extends JPanel implements ActionListener,MouseListene
     
     public void addItem(T s)
     {
-        for(ComboLabel l:allLabels)
-            if(l.equals(s))
-                return;
-        
-        ComboLabel l = new ComboLabel(s);
-        l.setFont(font);
-        l.addMouseListener(this);
-        l.setSize(getWidth()-BORDER_WIDTH*2,itemSize);
-        l.setLocation(0,labels.size()*itemSize);
-        l.setOpaque(true);
-        l.setBackground(backgroundC);
-        scroll.add(l);
-        allLabels.add(l);
-        filter();
-        update();
+        if(s != null)
+        {
+            for(ComboLabel l:allLabels)
+                if(l.equals(s))
+                    return;
+
+            ComboLabel l = new ComboLabel(s);
+            l.setFont(font);
+            l.addMouseListener(this);
+            l.setSize(getWidth()-BORDER_WIDTH*2-LABEL_BORDER,itemSize);
+            l.setLocation(LABEL_BORDER,labels.size()*itemSize);
+            l.setOpaque(true);
+            l.setBackground(backgroundC);
+            scroll.add(l);
+            allLabels.add(l);
+            filter();
+            update();
+        }
     }
     public void clear()
     {
@@ -218,7 +222,7 @@ public class MyComboBox<T> extends JPanel implements ActionListener,MouseListene
         this.itemSize = itemSize;
         
         for(JLabel l:labels)
-            l.setSize(size.width-BORDER_WIDTH*2,itemSize);
+            l.setSize(size.width-BORDER_WIDTH*2-LABEL_BORDER,itemSize);
         update();
     }
     public void setMaxShownLabels(int maxShownLabels)
@@ -231,7 +235,7 @@ public class MyComboBox<T> extends JPanel implements ActionListener,MouseListene
         if(selectedItem == null)
             return null;
         else
-             return selectedItem.getObject();
+            return selectedItem.getObject();
     }
     public void setSelectetItem(T t)
     {
@@ -254,15 +258,18 @@ public class MyComboBox<T> extends JPanel implements ActionListener,MouseListene
             else if(expanding == true)
                 selectedL.setObject(oldObject);
         }
+        
+        if(t != null)
+        {
+            MyComboEvent ae;
+            if(selectedItem == null)
+                ae = new MyComboEvent(this,-1,(t==null?null:t.toString()),null);
+            else
+                ae = new MyComboEvent(this,labels.indexOf(selectedItem),selectedItem.getText(),selectedItem.object);
 
-        MyComboEvent ae;
-        if(selectedItem == null)
-            ae = new MyComboEvent(this,-1,t.toString(),null);
-        else
-            ae = new MyComboEvent(this,labels.indexOf(selectedItem),selectedItem.getText(),selectedItem.object);
-
-        for(ActionListener l:listeners)
-            l.actionPerformed(ae);
+            for(ActionListener l:listeners)
+                l.actionPerformed(ae);
+        }
 
         expanding = false;
         timer.start();
@@ -311,7 +318,7 @@ public class MyComboBox<T> extends JPanel implements ActionListener,MouseListene
                     i--;
                 }
             for(int i=0;i<labels.size();i++)
-                labels.get(i).setLocation(0,itemSize*i);
+                labels.get(i).setLocation(LABEL_BORDER,itemSize*i);
 
             timer.start();
             filtering = false;
@@ -439,68 +446,71 @@ public class MyComboBox<T> extends JPanel implements ActionListener,MouseListene
     @Override public void keyReleased(KeyEvent e){}
     @Override public void keyTyped(KeyEvent e)
     {
-        if(e.getKeyChar() == KeyEvent.VK_BACK_SPACE)
+        if(expanding)
         {
-            if(text.length() > 0)
+                if(e.getKeyChar() == KeyEvent.VK_BACK_SPACE)
             {
-                text = text.substring(0, text.length()-1);
-                selectedL.setObject(null);
-                selectedL.setText(text);
-                filter();
-            }
-        }
-        else if(e.getKeyChar() == KeyEvent.VK_ENTER)
-        {
-            selectedItem = null;
-            for(ComboLabel l:labels)
-                if(l.getText().toLowerCase().equals(text.toLowerCase()))
+                if(text.length() > 0)
                 {
-                    selectedItem = l;
-                    selectedL.setObject(selectedItem.getObject());
-                    break;
-                }
-            
-            if(selectedItem == null)
-            {
-                if(allowNotlistedElements)
-                {
+                    text = text.substring(0, text.length()-1);
                     selectedL.setObject(null);
                     selectedL.setText(text);
+                    filter();
                 }
-                else
-                    selectedL.setObject(oldObject);
             }
-            
-            MyComboEvent ae;
-            if(selectedItem == null)
-                ae = new MyComboEvent(this,-1,text,null);
-            else
-                ae = new MyComboEvent(this,labels.indexOf(selectedItem),selectedItem.getText(),selectedItem.object);
-
-            for(ActionListener l:listeners)
-                l.actionPerformed(ae);
-            
-            expanding = false;
-            timer.start();
-        }
-        else if(e.getKeyChar() == KeyEvent.VK_ESCAPE)
-        {
-            if(selectedItem == null)
-                selectedL.setObject(oldObject);
-            else
-                selectedL.setObject(selectedItem.getObject());
-            expanding = false;
-            timer.start();
-        }
-        
-        else if(e.getKeyChar() != KeyEvent.CHAR_UNDEFINED)
-        {
-            if(e.getKeyChar() >= 32  &&  e.getKeyChar() <= 126)
+            else if(e.getKeyChar() == KeyEvent.VK_ENTER)
             {
-                text += e.getKeyChar();
-                selectedL.setObject(null);
-                selectedL.setText(text);
-                filter();
+                selectedItem = null;
+                for(ComboLabel l:labels)
+                    if(l.getText().toLowerCase().equals(text.toLowerCase()))
+                    {
+                        selectedItem = l;
+                        selectedL.setObject(selectedItem.getObject());
+                        break;
+                    }
+
+                if(selectedItem == null)
+                {
+                    if(allowNotlistedElements)
+                    {
+                        selectedL.setObject(null);
+                        selectedL.setText(text);
+                    }
+                    else
+                        selectedL.setObject(oldObject);
+                }
+
+                MyComboEvent ae;
+                if(selectedItem == null)
+                    ae = new MyComboEvent(this,-1,text,null);
+                else
+                    ae = new MyComboEvent(this,labels.indexOf(selectedItem),selectedItem.getText(),selectedItem.object);
+
+                for(ActionListener l:listeners)
+                    l.actionPerformed(ae);
+
+                expanding = false;
+                timer.start();
+            }
+            else if(e.getKeyChar() == KeyEvent.VK_ESCAPE)
+            {
+                if(selectedItem == null)
+                    selectedL.setObject(oldObject);
+                else
+                    selectedL.setObject(selectedItem.getObject());
+                expanding = false;
+                timer.start();
+            }
+
+            else if(e.getKeyChar() != KeyEvent.CHAR_UNDEFINED)
+            {
+                if(e.getKeyChar() >= 32  &&  e.getKeyChar() <= 126)
+                {
+                    text += e.getKeyChar();
+                    selectedL.setObject(null);
+                    selectedL.setText(text);
+                    filter();
+                }
             }
         }
     }

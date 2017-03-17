@@ -33,7 +33,24 @@ public class Stamm implements Comparable<Stamm>
     {
         return id+" - "+name;
     }
+
     
+    
+    
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 97 * hash + this.id;
+        return hash;
+    }
+    
+    @Override public boolean equals(Object s)
+    {
+        if(s instanceof Stamm)
+            return ((Stamm) s).id == id;
+        else
+            return false;
+    }
     @Override public int compareTo(Stamm s)
     {
         return id-s.getID();

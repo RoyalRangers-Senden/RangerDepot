@@ -3,6 +3,7 @@ package GUI;
 import GUI.guiElements.MyButton;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.EventQueue;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -27,7 +28,7 @@ import rangerdepot.RangerDepot;
 import rangerdepot.Strings;
 
 
-public class LoginFrame extends JFrame implements ActionListener,FocusListener,MouseListener,MouseMotionListener
+public class LoginFrame extends JFrame implements ActionListener,MouseListener,MouseMotionListener
 {
     private static final int BACKGROUND_ALPHA = 30;
     private static final int BACKGROUND_SIZE = 480;
@@ -70,7 +71,6 @@ public class LoginFrame extends JFrame implements ActionListener,FocusListener,M
         setUndecorated(true);
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         
-        addFocusListener(this);
         size = new Dimension(250,300);
         h = new JButton();
         h.setSize(0,0);h.setLocation(0,0);h.setVisible(true);
@@ -190,7 +190,6 @@ public class LoginFrame extends JFrame implements ActionListener,FocusListener,M
         add(titlePanel);
         add(data);
         add(loginPanel);
-//        add(rangerLogo);
         add(h);remove(h);
     }
     
@@ -212,18 +211,11 @@ public class LoginFrame extends JFrame implements ActionListener,FocusListener,M
     }
     public void open()
     {
-        update();
-        
-        setLocation((screenSize.width-size.width)/2,(screenSize.height-size.height)/2);
-        setVisible(true);
-        userTF.requestFocus();
-    }
-    public void update()
-    {
-//        ipTF.setText(depot.lastIP);
         userTF.setText("");
         pwTF.setText("");
-        userTF.requestFocus();
+        setLocation((screenSize.width-size.width)/2,(screenSize.height-size.height)/2);
+        setVisible(true);
+        userTF.grabFocus();
     }
     
     
@@ -242,19 +234,13 @@ public class LoginFrame extends JFrame implements ActionListener,FocusListener,M
                 error(Strings.USERNAME_ERROR);
 
             if(!depot.logIn(ipTF.getText(),userTF.getText(),pwTF.getText()))
-                update();
+            {
+                pwTF.setText("");
+                pwTF.grabFocus();
+            }
         }
     }
     //</editor-fold> Action Listener
-
-    //<editor-fold> Focus Listener
-    @Override public void focusGained(FocusEvent e)
-    {
-        userTF.requestFocus();
-    }
-    @Override public void focusLost(FocusEvent e){}
-    //</editor-fold> Focus Listener
-    
     
     //<editor-fold> Mouse Listener
     @Override public void mouseClicked(MouseEvent e){}
